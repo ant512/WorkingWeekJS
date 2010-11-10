@@ -394,3 +394,10 @@ WorkingWeek.Week.prototype.getNextShift = function(date) {
 	// containsShifts() check.
 	return false;
 }
+
+// TODO:
+// getPreviousShift
+// dateAddPositive (consider a name that uses the verbNoun structure)
+// dateAddNegative (ditto)
+// dateAdd
+// dateDiff
