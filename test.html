@@ -18,8 +18,13 @@ function test() {
 	
 	//day.removeShift(9, 30, 0, 0);
 	
-	alert(new Date(2010, 10, 8, 5, 0, 0, 0).getDay());
-	alert(day.getNextShift(new Date(2010, 10, 8, 5, 0, 0, 0)).getStartTime());
+	//alert(new Date(2010, 10, 8, 5, 0, 0, 0).getDay());
+	//alert(day.getNextShift(new Date(2010, 10, 8, 5, 0, 0, 0)).getStartTime());
+	//alert(day.getPreviousShift(new Date(2010, 10, 8, 15, 0, 0, 0)).getStartTime());
+	
+	var shift = day.getPreviousShift(new Date(2010, 10, 8, 15, 0, 0, 0));
+	alert(shift.getDuration().getTotalHours());
+	
 }
 
 		</script>
