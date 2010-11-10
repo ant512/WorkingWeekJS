@@ -32,11 +32,14 @@ var WorkingWeek = {
 
 	/**
 	 * Represents a single shift within a working day.
-	 * @param start The start time of the shift.
+	 * @param hour The start hour of the shift.
+	 * @param minute The start minute of the shift.
+	 * @param second The start second of the shift.
+	 * @param millisecond The start millisecond of the shift.
 	 * @param duration A TimeSpan representing the duration of the shift.
 	 */
-	Shift: function(start, duration) {
-		this.start = start;
+	Shift: function(hour, minute, second, millisecond, duration) {
+		this.startTime = new Date(1970, 1, 1, hour, minute, second, millisecond);
 		this.duration = duration;
 	},
 
@@ -48,9 +51,13 @@ var WorkingWeek = {
 	Day: function(dayOfWeek) {
 		this.dayOfWeek = dayOfWeek;
 		this.shifts = new Array();
-		this.duration = new TimeSpan();
+		this.duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, 0);
 	}
 }
+
+
+
+/** TimeSpan Methods **/
 
 /**
  * Gets the total number of milliseconds in the duration.
@@ -109,3 +116,107 @@ WorkingWeek.TimeSpan.prototype.addTimeSpan = function(span) {
 WorkingWeek.TimeSpan.prototype.subtractTimeSpan = function(span) {
 	return new WorkingWeek.TimeSpan(0, 0, 0, 0, this.milliseconds - span.getTotalMilliseconds());
 }
+
+WorkingWeek.TimeSpan.prototype.compareTo = function(span) {
+	if (this.milliseconds > span.getTotalMilliseconds()) return 1;
+	if (this.milliseconds < span.getTotalMilliseconds()) return -1;
+	return 0;
+}
+
+
+
+/** Shift Methods **/
+
+WorkingWeek.Shift.prototype.getStartTime = function() {
+	return this.startTime;
+}
+
+WorkingWeek.Shift.prototype.getDuration = function() {
+	return this.duration;
+}
+
+WorkingWeek.Shift.prototype.getEndTime = function() {
+	return new Date(Date.parse(this.startTime) + this.duration.getTotalMilliseconds());
+}
+
+WorkingWeek.Shift.prototype.compareTo = function(shift) {
+	if (this.startTime > shift.getStartTime()) return 1;
+	if (this.startTime < shift.getStartTime()) return -1;
+	
+	return this.duration.compareTo(shift.getDuration());
+}
+	
+
+
+/** Day Methods **/
+
+WorkingWeek.Day.prototype.isWorking = function() {
+	return this.shifts.length > 0;
+}
+
+WorkingWeek.Day.prototype.getDuration = function() {
+	return this.duration;
+}
+
+WorkingWeek.Day.prototype.findShift = function(date) {
+	
+	// Ensure the search time uses the minimum available date
+	var searchTime = new Date(1970, 1, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+	
+	for (i in this.shifts) {
+		if ((searchTime >= this.shifts[i].getStartTime()) && (searchTime < this.shifts[i].getEndTime())) return this.shifts[i];
+	}
+	
+	return false;
+}
+
+WorkingWeek.Day.prototype.isWorkingTime = function(date) {
+	return (this.findShift(date) != false);
+}
+
+WorkingWeek.Day.prototype.addShift = function(hour, minute, second, millisecond, duration) {
+	var date = new Date(1970, 1, 1, hour, minute, second, millisecond);
+	
+	if (this.isWorkingTime(date)) throw("New shift conflicts with existing shift.");
+	
+	var shift = new WorkingWeek.Shift(hour, minute, second, millisecond, duration);
+	
+	// Ensure shifts are inserted in sorted order
+	var inserted = false;
+	
+	for (var i = 0; i < this.shifts.length; ++i) {
+		if (shift.compareTo(this.shifts[i]) < 0) {
+			this.shifts.push(shift);
+			inserted = true;
+			break;
+		}
+	}
+	
+	if (!inserted) {
+		this.shifts = this.shifts.concat(shift);
+	}
+	
+	this.duration = this.duration.addTimeSpan(duration);
+}
+
+WorkingWeek.Day.prototype.removeShift = function(hour, minute, second, millisecond) {
+	var shift = false;
+	var startTime = false;
+	
+	for (var i = 0; i < this.shifts.length; ++i) {
+		shift = this.shifts[i];
+		startTime = shift.getStartTime();
+		
+		if ((startTime.getHours() == hour) &&
+			(startTime.getMinutes() == minute) &&
+			(startTime.getSeconds() == second) &&
+			(startTime.getMilliseconds() == millisecond)) {
+			
+			// Remove the shift's duration along with the shift itself
+			this.duration = this.duration.subtractTimeSpan(shift.getDuration());
+			this.shifts = this.shifts.splice(i, 1);
+			break;
+		}
+	}
+}
+

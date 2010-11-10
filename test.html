@@ -7,7 +7,16 @@
 function test() {
 	var span1 = new WorkingWeek.TimeSpan(1, 2, 3, 4, 5);
 	var span2 = new WorkingWeek.TimeSpan(0, 0, 40, 0, 0);
-	alert(span1.addTimeSpan(span2).getMilliseconds());
+	//alert(span1.addTimeSpan(span2).getMilliseconds());
+	
+	var date1 = new Date(2010, 1, 1, 20, 10, 0, 0);
+	var date2 = new Date(2010, 1, 1, 10, 10, 0, 0);
+	
+	var day = new WorkingWeek.Day(WorkingWeek.DayOfWeek.Monday);
+	day.addShift(9, 30, 0, 0, new WorkingWeek.TimeSpan(0, 3, 0, 0, 0));
+	day.addShift(13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
+	
+	day.removeShift(9, 30, 0, 0);
 }
 
 		</script>
