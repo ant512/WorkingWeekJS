@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<title>Working Week Test</title>
+		<script type="application/javascript" src="workingweek.js"></script>
+		<script type="application/javascript">
+
+function test() {
+	var span1 = new WorkingWeek.TimeSpan(1, 2, 3, 4, 5);
+	var span2 = new WorkingWeek.TimeSpan(0, 0, 40, 0, 0);
+	alert(span1.addTimeSpan(span2).getMilliseconds());
+}
+
+		</script>
+	</head>
+	
+	<body onload="test()">
+	</body>
+</html>
