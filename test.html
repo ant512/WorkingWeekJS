@@ -3,7 +3,7 @@
 		<title>Working Week Test</title>
 		<script type="application/javascript" src="workingweek.js"></script>
 		<script type="application/javascript">
-
+		
 function test() {
 	
 	var week = new WorkingWeek.Week();
@@ -21,16 +21,22 @@ function test() {
 	week.addShift(WorkingWeek.DayOfWeek.Thursday, 13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
 	
 	// Wed 10am - should be true
-	alert(week.isWorkingDate(new Date(2010, 10, 10, 10, 00, 00, 00)));
+	//alert(week.isWorkingDate(new Date(2010, 10, 10, 10, 00, 00, 00)));
 	
 	// Wed 12:45pm - should be false
-	alert(week.isWorkingDate(new Date(2010, 10, 10, 12, 45, 00, 00)));
+	//alert(week.isWorkingDate(new Date(2010, 10, 10, 12, 45, 00, 00)));
 	
 	// Sat - should be false
-	alert(week.isWorkingDate(new Date(2010, 10, 14, 10, 00, 00, 00)));
+	//alert(week.isWorkingDate(new Date(2010, 10, 14, 10, 00, 00, 00)));
 	
 	// Sat - should be false
-	alert(week.isWorkingDay(WorkingWeek.DayOfWeek.Saturday));
+	//alert(week.isWorkingDay(WorkingWeek.DayOfWeek.Saturday));
+	
+	//var shifts = week.ascendingShifts();
+	
+	var nextShift = week.getNextShift(new Date(2010, 10, 12, 18, 30, 0, 0));
+	alert(nextShift.getDuration().getTotalHours());
+
 }
 
 		</script>
