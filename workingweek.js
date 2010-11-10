@@ -3,14 +3,14 @@ var WorkingWeek = {
 	/**
 	 * Enum listing all days of the week.
 	 */
-	DayOfWeek: function() {
-		this.Sunday = 0;
-		this.Monday = 1;
-		this.Tuesday = 2;
-		this.Wednesday = 3;
-		this.Thursday = 4;
-		this.Friday = 5;
-		this.Saturday = 6;
+	DayOfWeek: {
+		Sunday: 0,
+		Monday: 1,
+		Tuesday: 2,
+		Wednesday: 3,
+		Thursday: 4,
+		Friday: 5,
+		Saturday: 6
 	},
 	
 	/**
@@ -127,18 +127,36 @@ WorkingWeek.TimeSpan.prototype.compareTo = function(span) {
 
 /** Shift Methods **/
 
+/**
+ * Gets the start time of the shift.
+ * @return The start time of the shift, as a Date object.
+ */
 WorkingWeek.Shift.prototype.getStartTime = function() {
 	return this.startTime;
 }
 
+/**
+ * Gets the duration of the shift.
+ * @return The duration of the shift, as a TimeSpan object.
+ */
 WorkingWeek.Shift.prototype.getDuration = function() {
 	return this.duration;
 }
 
+/**
+ * Gets the end time of the shift.
+ * @return The end time of the shift, as a Date object.
+ */
 WorkingWeek.Shift.prototype.getEndTime = function() {
-	return new Date(Date.parse(this.startTime) + this.duration.getTotalMilliseconds());
+	return new Date(this.startTime.getTime() + this.duration.getTotalMilliseconds());
 }
 
+/**
+ * Compares one shift with another.
+ * @return -1 if the current shift comes before the supplied shift, 1 if the
+ * current shift comes after the supplied shift, or 0 if the shifts are the
+ * same.
+ */
 WorkingWeek.Shift.prototype.compareTo = function(shift) {
 	if (this.startTime > shift.getStartTime()) return 1;
 	if (this.startTime < shift.getStartTime()) return -1;
@@ -220,3 +238,31 @@ WorkingWeek.Day.prototype.removeShift = function(hour, minute, second, milliseco
 	}
 }
 
+WorkingWeek.Day.prototype.getNextShift = function(date) {
+
+	// Ensure that the supplied date matches this day of the week
+	if (date.getDay() != this.dayOfWeek) throw("Supplied date contains the wrong day of the week.");
+	
+	// Adjust the date to search for so that it consists only of the time; the date is not relevant
+	var searchTime = new Date(1970, 1, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+	
+	for (i in this.shifts) {
+		
+		// Does the shift contain the date?
+		if (searchTime < this.shifts[i].getEndTime()) {
+		
+			// If the shift starts after the date, return the entire shift
+			if (searchTime <= this.shifts[i].getStartTime()) return this.shifts[i];
+			
+			// The date occurs somewhere within the shift, so adjust the shift so that it starts at the date and return that
+			var milliseconds = this.shifts[i].getDuration().getTotalMilliseconds();
+			milliseconds -= (searchTime.getTime() - this.shifts[i].getStartTime());
+			
+			var duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, milliseconds);
+			
+			return new WorkingWeek.Shift(searchTime.getHours(), searchTime.getMinutes(), searchTime.getSeconds(), searchTime.getMilliseconds(), duration);
+		}
+	}
+	
+	return false;
+}

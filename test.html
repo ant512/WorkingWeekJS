@@ -16,7 +16,10 @@ function test() {
 	day.addShift(9, 30, 0, 0, new WorkingWeek.TimeSpan(0, 3, 0, 0, 0));
 	day.addShift(13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
 	
-	day.removeShift(9, 30, 0, 0);
+	//day.removeShift(9, 30, 0, 0);
+	
+	alert(new Date(2010, 10, 8, 5, 0, 0, 0).getDay());
+	alert(day.getNextShift(new Date(2010, 10, 8, 5, 0, 0, 0)).getStartTime());
 }
 
 		</script>
