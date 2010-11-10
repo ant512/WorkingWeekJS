@@ -5,26 +5,32 @@
 		<script type="application/javascript">
 
 function test() {
-	var span1 = new WorkingWeek.TimeSpan(1, 2, 3, 4, 5);
-	var span2 = new WorkingWeek.TimeSpan(0, 0, 40, 0, 0);
-	//alert(span1.addTimeSpan(span2).getMilliseconds());
 	
-	var date1 = new Date(2010, 1, 1, 20, 10, 0, 0);
-	var date2 = new Date(2010, 1, 1, 10, 10, 0, 0);
+	var week = new WorkingWeek.Week();
 	
-	var day = new WorkingWeek.Day(WorkingWeek.DayOfWeek.Monday);
-	day.addShift(9, 30, 0, 0, new WorkingWeek.TimeSpan(0, 3, 0, 0, 0));
-	day.addShift(13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
+	week.addShift(WorkingWeek.DayOfWeek.Monday, 9, 30, 0, 0, new WorkingWeek.TimeSpan(0, 3, 0, 0, 0));
+	week.addShift(WorkingWeek.DayOfWeek.Monday, 13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
 	
-	//day.removeShift(9, 30, 0, 0);
+	week.addShift(WorkingWeek.DayOfWeek.Tuesday, 9, 30, 0, 0, new WorkingWeek.TimeSpan(0, 3, 0, 0, 0));
+	week.addShift(WorkingWeek.DayOfWeek.Tuesday, 13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
 	
-	//alert(new Date(2010, 10, 8, 5, 0, 0, 0).getDay());
-	//alert(day.getNextShift(new Date(2010, 10, 8, 5, 0, 0, 0)).getStartTime());
-	//alert(day.getPreviousShift(new Date(2010, 10, 8, 15, 0, 0, 0)).getStartTime());
+	week.addShift(WorkingWeek.DayOfWeek.Wednesday, 9, 30, 0, 0, new WorkingWeek.TimeSpan(0, 3, 0, 0, 0));
+	week.addShift(WorkingWeek.DayOfWeek.Wednesday, 13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
 	
-	var shift = day.getPreviousShift(new Date(2010, 10, 8, 15, 0, 0, 0));
-	alert(shift.getDuration().getTotalHours());
+	week.addShift(WorkingWeek.DayOfWeek.Thursday, 9, 30, 0, 0, new WorkingWeek.TimeSpan(0, 3, 0, 0, 0));
+	week.addShift(WorkingWeek.DayOfWeek.Thursday, 13, 30, 0, 0, new WorkingWeek.TimeSpan(0, 4, 0, 0, 0));
 	
+	// Wed 10am - should be true
+	alert(week.isWorkingDate(new Date(2010, 10, 10, 10, 00, 00, 00)));
+	
+	// Wed 12:45pm - should be false
+	alert(week.isWorkingDate(new Date(2010, 10, 10, 12, 45, 00, 00)));
+	
+	// Sat - should be false
+	alert(week.isWorkingDate(new Date(2010, 10, 14, 10, 00, 00, 00)));
+	
+	// Sat - should be false
+	alert(week.isWorkingDay(WorkingWeek.DayOfWeek.Saturday));
 }
 
 		</script>

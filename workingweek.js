@@ -52,6 +52,18 @@ var WorkingWeek = {
 		this.dayOfWeek = dayOfWeek;
 		this.shifts = new Array();
 		this.duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, 0);
+	},
+	
+	/**
+	 * Represents a working week.
+	 */
+	Week: function() {
+		this.duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, 0);
+		this.days = new Array();
+		
+		for (var i = 0; i < 7; ++i) {
+			this.days[i] = new WorkingWeek.Day(i);
+		}
 	}
 }
 
@@ -306,3 +318,53 @@ WorkingWeek.Day.prototype.getPreviousShift = function(date) {
 	
 	return false;
 }
+
+
+
+/** Week Methods **/
+
+WorkingWeek.Week.prototype.getDuration = function() {
+	var duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, 0);
+	
+	for (i in this.days) {
+		duration = duration.addTimeSpan(this.days[i].getDuration());
+	}
+	
+	return duration;
+}
+
+WorkingWeek.Week.prototype.containsShifts = function() {
+	for (i in this.days) {
+		if (this.days.isWorking()) return true;
+	}
+	
+	return false;
+}
+
+WorkingWeek.Week.prototype.getDay = function(dayOfWeek) {
+	return this.days[dayOfWeek];
+}
+
+WorkingWeek.Week.prototype.addShift = function(dayOfWeek, hour, minute, second, millisecond, duration) {
+	this.getDay(dayOfWeek).addShift(hour, minute, second, millisecond, duration);
+}
+
+WorkingWeek.Week.prototype.removeShift = function(dayOfWeek, hour, minute, second, millisecond) {
+	this.getDay(dayOfWeek).removeShift(hour, minute, second, millisecond);
+}
+
+WorkingWeek.Week.prototype.isWorkingDate = function(date) {
+	var workingDay = this.getDay(date.getDay());
+	
+	if (!workingDay) return false;
+	
+	if (!workingDay.isWorking()) return false;
+	
+	return workingDay.isWorkingTime(date);
+}
+
+WorkingWeek.Week.prototype.isWorkingDay = function(dayOfWeek) {
+	return this.getDay(dayOfWeek).isWorking();
+}
+
+
