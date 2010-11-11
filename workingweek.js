@@ -421,9 +421,68 @@ WorkingWeek.Week.prototype.getPreviousShift = function(date) {
 	}
 }
 
+WorkingWeek.Week.prototype.dateDiff = function(startDate, endDate) {
+	var invertedDates = false;
+	
+	// Invert dates if necessary so that startDate always precedes endDate
+	if (startDate > endDate) {
+		var swap = startDate;
+		startDate = endDate;
+		endDate = swap;
+
+		invertedDates = true;
+	}
+	
+	var timeDiff = endDate.getTime() - startDate.getTime();
+	var workDiff = 0;
+
+	// Calculate how many weeks difference there are between the two dates, then
+	// calculate how much work time that represents, and add it to the workDiff.
+	var millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000;
+	var weeks = parseInt(timeDiff / millisecondsPerWeek);
+
+	if (weeks > 0)
+	{
+		// Remember the amount of working time for these whole weeks
+		workDiff += weeks * this.getDuration().getTotalMilliseconds();
+		
+		// Adjust the start date so that the time already allocated is not
+		// considered again
+		startDate = new Date(startDate.getTime() + (weeks * millisecondsPerWeek));
+	}
+
+	// Allocate remaining fraction of a week
+	while (startDate < endDate) {
+		var shift = this.getNextShift(startDate);
+		
+		// Stop if the shift falls outside the bounds we're interested in
+		if (shift.getStartTime() >= endDate) break;
+		
+		// Remember the working duration
+		workDiff += shift.getDuration().getTotalMilliseconds();
+		
+		// Move the start date up
+		startDate = shift.getEndTime();
+		
+		// Account for the situation in which we over-allocate time (ie. end
+		// date falls within a shift)
+		if (startDate > endDate) {
+			workDiff -= (startDate.getTime() - endDate.getTime());
+		}
+	}
+
+	// Return inverted timespan if we swapped the dates
+	if (!invertedDates)
+	{
+		return new WorkingWeek.TimeSpan(0, 0, 0, 0, workDiff);
+	}
+	else
+	{
+		return new WorkingWeek.TimeSpan(0, 0, 0, 0, -workDiff);
+	}
+}
+
 // TODO:
-// getPreviousShift
 // dateAddPositive (consider a name that uses the verbNoun structure)
 // dateAddNegative (ditto)
 // dateAdd
-// dateDiff
