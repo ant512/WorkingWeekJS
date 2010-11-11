@@ -246,7 +246,7 @@ WorkingWeek.Day.prototype.removeShift = function(shift) {
  * Get the next shift after the supplied date.  If the next appropriate shift
  * contains the supplied date, that shift is returned.
  * @param date Date of the shift to find.
- * @returns The appropriate shift, or false if no shift is found.
+ * @return The appropriate shift, or false if no shift is found.
  */
 WorkingWeek.Day.prototype.getNextShift = function(date) {
 
@@ -281,7 +281,7 @@ WorkingWeek.Day.prototype.getNextShift = function(date) {
  * Get the shift prior to the supplied date.  If the next appropriate shift
  * contains the supplied date, that shift is returned.
  * @param date Date of the shift to find.
- * @returns The appropriate shift, or false if no shift is found.
+ * @return The appropriate shift, or false if no shift is found.
  */
 WorkingWeek.Day.prototype.getPreviousShift = function(date) {
 
@@ -419,8 +419,22 @@ WorkingWeek.Week.prototype.getPreviousShift = function(date) {
 		
 		date = new Date(date.getTime() - 1);
 	}
+	
+	// No shifts match - this should never happen if the week passes the
+	// containsShifts() check.
+	return false;
 }
 
+/**
+ * Gets the difference between the two dates in terms of the working time.  If
+ * Bob works 2 hours on 10/10/2011 at 9:00, and doesn't work at all on
+ * 11/10/2011, then the date diff between 10/10/2011 at 7:00 and 11/10/2011 at
+ * 16:30 is 2 *working* hours.
+ * @param startDate The start date.
+ * @param endDate The end date.
+ * @return The working time difference between the two dates as a TimeSpan
+ * object.
+ */
 WorkingWeek.Week.prototype.dateDiff = function(startDate, endDate) {
 	var invertedDates = false;
 	
