@@ -455,8 +455,7 @@ WorkingWeek.Week.prototype.dateDiff = function(startDate, endDate) {
 	var millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000;
 	var weeks = parseInt(timeDiff / millisecondsPerWeek);
 
-	if (weeks > 0)
-	{
+	if (weeks > 0) {
 		// Remember the amount of working time for these whole weeks
 		workDiff += weeks * this.getDuration().getTotalMilliseconds();
 		
@@ -486,13 +485,30 @@ WorkingWeek.Week.prototype.dateDiff = function(startDate, endDate) {
 	}
 
 	// Return inverted timespan if we swapped the dates
-	if (!invertedDates)
-	{
+	if (!invertedDates)	{
 		return new WorkingWeek.TimeSpan(0, 0, 0, 0, workDiff);
-	}
-	else
-	{
+	} else {
 		return new WorkingWeek.TimeSpan(0, 0, 0, 0, -workDiff);
+	}
+}
+
+WorkingWeek.Week.prototype.dateAddPositive = function(startDate, duration) {
+	var endDate = startDate;
+	
+	var millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000;
+	var weeks = parseInt(this.getDuration() / millisecondsPerWeek);
+	
+	if (weeks > 0) {
+		duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, duration.getTotalMilliseconds() - (weeks * millisecondsPerWeek));
+		endDate = new Date(endDate.getTime() + (weeks * millisecondsPerWeek));
+	}
+	
+	while (duration.getTotalMilliseconds() > 0) {
+		var shift = this.getNextShift(endDate);
+		
+		
+		//if (duration.getTotalMilliseconds() > )
+		
 	}
 }
 
