@@ -32,14 +32,11 @@ var WorkingWeek = {
 
 	/**
 	 * Represents a single shift within a working day.
-	 * @param hour The start hour of the shift.
-	 * @param minute The start minute of the shift.
-	 * @param second The start second of the shift.
-	 * @param millisecond The start millisecond of the shift.
+	 * @param startTime The start time of the shift.
 	 * @param duration A TimeSpan representing the duration of the shift.
 	 */
-	Shift: function(hour, minute, second, millisecond, duration) {
-		this.startTime = new Date(1970, 1, 1, hour, minute, second, millisecond);
+	Shift: function(startTime, duration) {
+		this.startTime = startTime;
 		this.duration = duration;
 	},
 
@@ -191,7 +188,7 @@ WorkingWeek.Day.prototype.getDuration = function() {
 WorkingWeek.Day.prototype.findShift = function(date) {
 	
 	// Ensure the search time uses the minimum available date
-	var searchTime = new Date(1970, 1, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+	var searchTime = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
 	
 	for (i in this.shifts) {
 		if ((searchTime >= this.shifts[i].getStartTime()) && (searchTime < this.shifts[i].getEndTime())) return this.shifts[i];
@@ -204,12 +201,8 @@ WorkingWeek.Day.prototype.isWorkingTime = function(date) {
 	return (this.findShift(date) != false);
 }
 
-WorkingWeek.Day.prototype.addShift = function(hour, minute, second, millisecond, duration) {
-	var date = new Date(1970, 1, 1, hour, minute, second, millisecond);
-	
-	if (this.isWorkingTime(date)) throw("New shift conflicts with existing shift.");
-	
-	var shift = new WorkingWeek.Shift(hour, minute, second, millisecond, duration);
+WorkingWeek.Day.prototype.addShift = function(shift) {
+	if (this.isWorkingTime(shift.getStartTime())) throw("New shift conflicts with existing shift.");
 	
 	// Ensure shifts are inserted in sorted order
 	var inserted = false;
@@ -226,16 +219,15 @@ WorkingWeek.Day.prototype.addShift = function(hour, minute, second, millisecond,
 		this.shifts = this.shifts.concat(shift);
 	}
 	
-	this.duration = this.duration.addTimeSpan(duration);
+	this.duration = this.duration.addTimeSpan(shift.getDuration());
 }
 
-WorkingWeek.Day.prototype.removeShift = function(hour, minute, second, millisecond) {
-	var shift = false;
+WorkingWeek.Day.prototype.removeShift = function(shift) {
 	var startTime = false;
 	
 	for (var i = 0; i < this.shifts.length; ++i) {
-		shift = this.shifts[i];
-		startTime = shift.getStartTime();
+		var currentShift = this.shifts[i];
+		startTime = currentShift.getStartTime();
 		
 		if ((startTime.getHours() == hour) &&
 			(startTime.getMinutes() == minute) &&
@@ -243,7 +235,7 @@ WorkingWeek.Day.prototype.removeShift = function(hour, minute, second, milliseco
 			(startTime.getMilliseconds() == millisecond)) {
 			
 			// Remove the shift's duration along with the shift itself
-			this.duration = this.duration.subtractTimeSpan(shift.getDuration());
+			this.duration = this.duration.subtractTimeSpan(currentShift.getDuration());
 			this.shifts = this.shifts.splice(i, 1);
 			break;
 		}
@@ -262,7 +254,7 @@ WorkingWeek.Day.prototype.getNextShift = function(date) {
 	if (date.getDay() != this.dayOfWeek) throw("Supplied date contains the wrong day of the week.");
 	
 	// Adjust the date to search for so that it consists only of the time; the date is not relevant
-	var searchTime = new Date(1970, 1, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+	var searchTime = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
 	
 	for (i in this.shifts) {
 		
@@ -278,7 +270,7 @@ WorkingWeek.Day.prototype.getNextShift = function(date) {
 			
 			var duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, milliseconds);
 			
-			return new WorkingWeek.Shift(searchTime.getHours(), searchTime.getMinutes(), searchTime.getSeconds(), searchTime.getMilliseconds(), duration);
+			return new WorkingWeek.Shift(searchTime, duration);
 		}
 	}
 	
@@ -297,7 +289,7 @@ WorkingWeek.Day.prototype.getPreviousShift = function(date) {
 	if (date.getDay() != this.dayOfWeek) throw("Supplied date contains the wrong day of the week.");
 	
 	// Adjust the date to search for so that it consists only of the time; the date is not relevant
-	var searchTime = new Date(1970, 1, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+	var searchTime = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
 	
 	for (var i = this.shifts.length - 1; i >= 0; --i) {
 	
@@ -314,7 +306,7 @@ WorkingWeek.Day.prototype.getPreviousShift = function(date) {
 			
 			var duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, milliseconds);
 			
-			return new WorkingWeek.Shift(shift.getStartTime().getHours(), shift.getStartTime().getMinutes(), shift.getStartTime().getSeconds(), shift.getStartTime().getMilliseconds(), duration);
+			return new WorkingWeek.Shift(searchTime, duration);
 		}
 	}
 	
@@ -348,11 +340,11 @@ WorkingWeek.Week.prototype.getDay = function(dayOfWeek) {
 }
 
 WorkingWeek.Week.prototype.addShift = function(dayOfWeek, hour, minute, second, millisecond, duration) {
-	this.getDay(dayOfWeek).addShift(hour, minute, second, millisecond, duration);
+	this.getDay(dayOfWeek).addShift(new WorkingWeek.Shift(new Date(1970, 0, 1, hour, minute, second, millisecond), duration));
 }
 
 WorkingWeek.Week.prototype.removeShift = function(dayOfWeek, hour, minute, second, millisecond) {
-	this.getDay(dayOfWeek).removeShift(hour, minute, second, millisecond);
+	this.getDay(dayOfWeek).removeShift(new WorkingWeek.Shift(new Date(1970, 0, 1, hour, minute, second, millisecond)));
 }
 
 WorkingWeek.Week.prototype.isWorkingDate = function(date) {
@@ -379,7 +371,13 @@ WorkingWeek.Week.prototype.getNextShift = function(date) {
 		
 			var shift = day.getNextShift(date);
 		
-			if (shift != false) return shift;
+			if (shift != false) {
+				var shiftTime = shift.getStartTime();
+				var adjustedTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), shiftTime.getHours(), shiftTime.getMinutes(), shiftTime.getSeconds(), shiftTime.getMilliseconds());
+			
+				var adjustedShift = new WorkingWeek.Shift(adjustedTime, shift.getDuration());
+				return adjustedShift;
+			}
 		}
 		
 		// Move to the next day
@@ -404,7 +402,13 @@ WorkingWeek.Week.prototype.getPreviousShift = function(date) {
 		if (day.isWorking()) {
 			var shift = day.getPreviousShift(date);
 			
-			if (shift != false) return shift;
+			if (shift != false) {
+				var shiftTime = shift.getStartTime();
+				var adjustedTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), shiftTime.getHours(), shiftTime.getMinutes(), shiftTime.getSeconds(), shiftTime.getMilliseconds());
+			
+				var adjustedShift = new WorkingWeek.Shift(adjustedTime, shift.getDuration());
+				return adjustedShift;
+			}
 		}
 		
 		// Move to the previous day
