@@ -395,6 +395,28 @@ WorkingWeek.Week.prototype.getNextShift = function(date) {
 	return false;
 }
 
+WorkingWeek.Week.prototype.getPreviousShift = function(date) {
+	if (!this.containsShifts()) return false;
+	
+	for (var i = 0; i < 7; ++i) {
+		var day = this.days[date.getDay()];
+		
+		if (day.isWorking()) {
+			var shift = day.getPreviousShift(date);
+			
+			if (shift != false) return shift;
+		}
+		
+		// Move to the previous day
+		date.setHours(0);
+		date.setMinutes(0);
+		date.setSeconds(0);
+		date.setMilliseconds(0);
+		
+		date = new Date(date.getTime() - 1);
+	}
+}
+
 // TODO:
 // getPreviousShift
 // dateAddPositive (consider a name that uses the verbNoun structure)

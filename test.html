@@ -34,9 +34,11 @@ function test() {
 	
 	//var shifts = week.ascendingShifts();
 	
-	var nextShift = week.getNextShift(new Date(2010, 10, 12, 18, 30, 0, 0));
-	alert(nextShift.getDuration().getTotalHours());
+	//var nextShift = week.getNextShift(new Date(2010, 10, 12, 18, 30, 0, 0));
+	//alert(nextShift.getDuration().getTotalHours());
 
+	var previousShift = week.getPreviousShift(new Date(2010, 10, 12, 8, 30, 0, 0));
+	alert(previousShift.getStartTime() + ', ' + previousShift.getDuration().getTotalHours());
 }
 
 		</script>
