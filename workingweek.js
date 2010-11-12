@@ -495,6 +495,8 @@ WorkingWeek.Week.prototype.dateDiff = function(startDate, endDate) {
 WorkingWeek.Week.prototype.dateAddPositive = function(startDate, duration) {
 	var endDate = startDate;
 	
+	// Calculate how many weeks we can allocate simultaneously to avoid
+	// iterating over days
 	var millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000;
 	var weeks = parseInt(this.getDuration() / millisecondsPerWeek);
 	
@@ -503,13 +505,26 @@ WorkingWeek.Week.prototype.dateAddPositive = function(startDate, duration) {
 		endDate = new Date(endDate.getTime() + (weeks * millisecondsPerWeek));
 	}
 	
+	// Allocate remaining fraction of a week
 	while (duration.getTotalMilliseconds() > 0) {
 		var shift = this.getNextShift(endDate);
 		
 		
-		//if (duration.getTotalMilliseconds() > )
+		if (duration.getTotalMilliseconds() > shift.getDuration().getTotalMilliseconds()) {
 		
+			// Move the end date to the end of the shift, and subtract the length of the
+			// shift from the remaining duration
+			endDate = shift.getEndTime();
+			duration = duration.subtractTimeSpan(shift.getDuration());
+		} else {
+		
+			// Remaining duration is shorter than the shift
+			endDate = new Date(shift.getStartTime().getTime() + duration.getTotalMilliseconds());
+			duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, 0);
+		}
 	}
+	
+	return endDate;
 }
 
 // TODO:

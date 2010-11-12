@@ -40,8 +40,11 @@ function test() {
 	//var previousShift = week.getPreviousShift(new Date(2010, 10, 11, 10, 30, 0, 0));
 	//alert(previousShift.getStartTime() + ', ' + previousShift.getDuration().getTotalHours());
 	
-	var diff = week.dateDiff(new Date(2010, 10, 11, 10, 30, 0, 0), new Date(2010, 10, 12, 14, 30, 0, 0));
-	alert(diff.getTotalHours());
+	//var diff = week.dateDiff(new Date(2010, 10, 11, 10, 30, 0, 0), new Date(2010, 10, 12, 14, 30, 0, 0));
+	//alert(diff.getTotalHours());
+	
+	var date = new Date(2010, 10, 11, 2, 0, 0, 0);
+	alert(week.dateAddPositive(date, new WorkingWeek.TimeSpan(0, 5, 0, 0, 0)));
 }
 
 		</script>
