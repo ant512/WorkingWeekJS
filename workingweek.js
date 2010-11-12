@@ -15,7 +15,9 @@ var WorkingWeek = {
 	
 	/**
 	 * TimeSpan class provides similar functionality to the TimeSpan class in
-	 * C#.
+	 * C#.  Note that the functions offered by the TimeSpan class do not change
+	 * the current instance; therefore, TimeSpan objects are considered
+	 * to be immutable.
 	 * @param days The number of days in the span.
 	 * @param hours The number of hours in the span.
 	 * @param minutes The number of minutes in the span.
@@ -132,6 +134,9 @@ WorkingWeek.TimeSpan.prototype.compareTo = function(span) {
 	return 0;
 }
 
+WorkingWeek.TimeSpan.prototype.negate = function() {
+	return new WorkingWeek.TimeSpan(0, 0, 0, 0, -this.milliseconds);
+}
 
 
 /** Shift Methods **/
@@ -527,7 +532,49 @@ WorkingWeek.Week.prototype.dateAddPositive = function(startDate, duration) {
 	return endDate;
 }
 
-// TODO:
-// dateAddPositive (consider a name that uses the verbNoun structure)
-// dateAddNegative (ditto)
-// dateAdd
+WorkingWeek.Week.prototype.dateAddNegative = function(startDate, duration) {
+	var endDate = startDate;
+	
+	// Invert duration so that comparisons are more logical
+	duration = duration.negate();
+	
+	// Calculate how many weeks we can allocate simultaneously to avoid
+	// iterating over days
+	var millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000;
+	var weeks = parseInt(this.getDuration() / millisecondsPerWeek);
+	
+	if (weeks > 0) {
+		duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, duration.getTotalMilliseconds() - (weeks * millisecondsPerWeek));
+		endDate = new Date(endDate.getTime() - (weeks * millisecondsPerWeek));
+	}
+	
+	// Allocate remaining fraction of a week
+	while (duration.getTotalMilliseconds() > 0) {
+		var shift = this.getPreviousShift(endDate);
+		
+		if (duration.getTotalMilliseconds() > shift.getDuration().getTotalMilliseconds()) {
+		
+			// Move the end date to the start of the shift, and subtract the length of the
+			// shift from the remaining duration
+			endDate = shift.getStartTime();
+			duration = duration.subtractTimeSpan(shift.getDuration());
+		} else {
+		
+			// Remaining duration is shorter than the shift
+			endDate = new Date(shift.getEndTime().getTime() - duration.getTotalMilliseconds());
+			duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, 0);
+		}
+	}
+	
+	return endDate;
+}
+
+WorkingWeek.Week.prototype.dateAdd = function(startDate, duration) {
+	if (duration.getTotalMilliseconds() > 0) {
+		return this.dateAddPositive(startDate, duration);
+	} else if (duration.getTotalMilliseconds() < 0) {
+		return this.dateAddNegative(startDate, duration);
+	}
+
+	return startDate;
+}
