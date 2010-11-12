@@ -71,7 +71,8 @@ var WorkingWeek = {
 /** TimeSpan Methods **/
 
 /**
- * Gets the total number of milliseconds in the duration.
+ * Gets the total number of milliseconds in the time span.
+ * @return The total number of milliseconds in the time span.
  */
 WorkingWeek.TimeSpan.prototype.getTotalMilliseconds = function() {
 	return this.milliseconds;
@@ -79,6 +80,7 @@ WorkingWeek.TimeSpan.prototype.getTotalMilliseconds = function() {
 
 /**
  * Gets the number of days in the time span, excluding partial days.
+ * @return The number of days in the time span, excluding partial days.
  */
 WorkingWeek.TimeSpan.prototype.getDays = function() {
 	return parseInt(this.getTotalDays());
@@ -86,54 +88,120 @@ WorkingWeek.TimeSpan.prototype.getDays = function() {
 
 /**
  * Gets the number of hours in the time span, excluding days or partial hours.
- * If the span had 2 days, 3 hours and 25 minutes, the function will return 3.
+ * If the span had 2 days, 3 hours and 25 minutes, the function would return 3.
+ * @return The number of hours in the time span, excluding days or partial
+ * hours.
  */
 WorkingWeek.TimeSpan.prototype.getHours = function() {
 	return parseInt(this.getTotalHours() % 24);
 }
 
+/**
+ * Gets the number of minutes in the time span, excluding days, minutes or
+ * partial hours.  If the span had 3 hours, 25 minutes and 3 seconds, the
+ * function would return 25.
+ * @return The number  of minutes in the time span, excluding days, minutes or
+ * partial hours.
+ */
 WorkingWeek.TimeSpan.prototype.getMinutes = function() {
 	return parseInt(this.getTotalMinutes() % 60);
 }
 
+/**
+ * Gets the number of seconds in the time span, excluding days, minutes, hours
+ * or partial seconds.  If the time span had 25 minutes, 3 seconds and 10
+ * milliseconds, the function would return 3.
+ * @return The number of seconds in the time span, excluding days, minutes,
+ * hours or partial seconds.
+ */
 WorkingWeek.TimeSpan.prototype.getSeconds = function() {
 	return parseInt(this.getTotalSeconds() % 60);
 }
 
+/**
+ * Gets the number of milliseconds in the time span, excluding days, minutes,
+ * hours and seconds.  If the time span had 25 minutes, 3 seconds and 10
+ * milliseconds, the function would return 10.
+ * @return The number of milliseconds in the time span, excluding days, minutes,
+ * hours and seconds.
+ */
 WorkingWeek.TimeSpan.prototype.getMilliseconds = function() {
 	return parseInt(this.milliseconds % 1000);
 }
 
+/**
+ * Gets the total number of days in the time span, including partial days.
+ * @return The total number of days in the time span, including partial days.
+ */
 WorkingWeek.TimeSpan.prototype.getTotalDays = function() {
 	return this.milliseconds / (1000 * 60 * 60 * 24);
 }
 
+/**
+ * Gets the total number of hours in the time span, including partial hours.
+ * @return The total number of hours in the time span, including partial hours.
+ */
 WorkingWeek.TimeSpan.prototype.getTotalHours = function() {
 	return this.milliseconds / (1000 * 60 * 60);
 }
 
+/**
+ * Gets the total number of minutes in the time span, including partial minutes.
+ * @return The total number of minutes in the time span, including partial
+ * minutes.
+ */
 WorkingWeek.TimeSpan.prototype.getTotalMinutes = function() {
 	return this.milliseconds / (1000 * 60);
 }
 
+/**
+ * Gets the total number of seconds in the time span, including partial seconds.
+ * @return The total number of seconds in the time span, including partial
+ * seconds.
+ */
 WorkingWeek.TimeSpan.prototype.getTotalSeconds = function() {
 	return this.milliseconds / 1000;
 }
 
+/**
+ * Gets a new TimeSpan object that contains the sum of the current time span
+ * and the span supplied as an argument.
+ * @param span The time span object to add to this.
+ * @return A TimeSpan object that represents the sum of the current object and
+ * the argument.
+ */
 WorkingWeek.TimeSpan.prototype.addTimeSpan = function(span) {
 	return new WorkingWeek.TimeSpan(0, 0, 0, 0, this.milliseconds + span.getTotalMilliseconds());
 }
 
+/**
+ * Gets a new TimeSpan object that contains the value of the current time span
+ * minus the span supplied as an argument.
+ * @param span The time span object to subtract from this.
+ * @return A TimeSpan object that represents the value of the current object
+ * minus the argument.
+ */
 WorkingWeek.TimeSpan.prototype.subtractTimeSpan = function(span) {
 	return new WorkingWeek.TimeSpan(0, 0, 0, 0, this.milliseconds - span.getTotalMilliseconds());
 }
 
+/**
+ * Compares the current TimeSpan and the supplied span object based on their
+ * duration.
+ * @return 1 if the current object is greater than the argument, -1 if the
+ * opposite is true, or 0 if the objects have the same duration.
+ */
 WorkingWeek.TimeSpan.prototype.compareTo = function(span) {
 	if (this.milliseconds > span.getTotalMilliseconds()) return 1;
 	if (this.milliseconds < span.getTotalMilliseconds()) return -1;
 	return 0;
 }
 
+/**
+ * Returns a new TimeSpan object that contains a negated copy of the current
+ * span.
+ * @return A negated copy of the current object.
+ */
 WorkingWeek.TimeSpan.prototype.negate = function() {
 	return new WorkingWeek.TimeSpan(0, 0, 0, 0, -this.milliseconds);
 }
@@ -182,14 +250,28 @@ WorkingWeek.Shift.prototype.compareTo = function(shift) {
 
 /** Day Methods **/
 
+/**
+ * Check if the day is a working day (ie. it contains shifts).
+ * @return A boolean indicating whether or not the day is working.
+ */
 WorkingWeek.Day.prototype.isWorking = function() {
 	return this.shifts.length > 0;
 }
 
+/**
+ * Gets the total duration of the day, in terms of working time.
+ * @return The total working duration of the day as a TimeSpan object.
+ */
 WorkingWeek.Day.prototype.getDuration = function() {
 	return this.duration;
 }
 
+/**
+ * Finds a shift that intersects the supplied date.
+ * @param date The date to search for.
+ * @return  A shift object that contains the supplied date.  If no match is
+ * found, the function returns false.
+ */
 WorkingWeek.Day.prototype.findShift = function(date) {
 	
 	// Ensure the search time uses the minimum available date
@@ -202,10 +284,22 @@ WorkingWeek.Day.prototype.findShift = function(date) {
 	return false;
 }
 
+/**
+ * Check if the supplied time is a working time.
+ * @param date The date to check.
+ * @return A boolean indicating whether or not the date is a working time.
+ */
 WorkingWeek.Day.prototype.isWorkingTime = function(date) {
 	return (this.findShift(date) != false);
 }
 
+/**
+ * Adds the supplied shift to the day.  Note that days cannot contain
+ * overlapping shifts, and the function will throw an exception if this is
+ * attempted.
+ * @param shift The shift to add.  Note that the start *date* of the shift must
+ * be set to 1/1/1970.  The start *time* can be whatever you need it to be.
+ */
 WorkingWeek.Day.prototype.addShift = function(shift) {
 	if (this.isWorkingTime(shift.getStartTime())) throw("New shift conflicts with existing shift.");
 	
@@ -227,6 +321,13 @@ WorkingWeek.Day.prototype.addShift = function(shift) {
 	this.duration = this.duration.addTimeSpan(shift.getDuration());
 }
 
+/**
+ * Removes a shift from the day that has the same start time as the supplied
+ * shift.  Duration is not considered as the day cannot contain two shifts that
+ * overlap (ie. start at the same time).
+ * @param shift A shift object that starts at the same time as the shift to
+ * remove.
+ */
 WorkingWeek.Day.prototype.removeShift = function(shift) {
 	var startTime = false;
 	
@@ -322,6 +423,10 @@ WorkingWeek.Day.prototype.getPreviousShift = function(date) {
 
 /** Week Methods **/
 
+/**
+ * Gets the duration of the week in terms of working shifts.
+ * @return The duration of the week as a TimeSpan object.
+ */
 WorkingWeek.Week.prototype.getDuration = function() {
 	var duration = new WorkingWeek.TimeSpan(0, 0, 0, 0, 0);
 	
@@ -332,6 +437,10 @@ WorkingWeek.Week.prototype.getDuration = function() {
 	return duration;
 }
 
+/**
+ * Check if the week contains any shifts.
+ * @return A boolean indicating whether or not the week contains shifts.
+ */
 WorkingWeek.Week.prototype.containsShifts = function() {
 	for (i in this.days) {
 		if (this.days[i].isWorking()) return true;
@@ -340,18 +449,55 @@ WorkingWeek.Week.prototype.containsShifts = function() {
 	return false;
 }
 
+/**
+ * Get the day object for the given day of the week.
+ * @param dayOfWeek A value indicating the day of the week (this can be an
+ * integer between 0 and 6, but using the WorkingWeek.DayOfWeek enum is
+ * recommended).
+ * @return The relevant day object.
+ */
 WorkingWeek.Week.prototype.getDay = function(dayOfWeek) {
 	return this.days[dayOfWeek];
 }
 
+/**
+ * Add a shift to the week.  The arguments specify the start and duration of the
+ * shift.
+ * @param dayOfWeek A value indicating the day of the week (this can be an
+ * integer between 0 and 6, but using the WorkingWeek.DayOfWeek enum is
+ * recommended).
+ * @param hour The start hour of the shift.
+ * @param minute The start minute of the shift.
+ * @param second The start second of the shift.
+ * @param millisecond The start millisecond of the shift.
+ * @param duration The length of the shift.  This must be a TimeSpan object.
+ */
 WorkingWeek.Week.prototype.addShift = function(dayOfWeek, hour, minute, second, millisecond, duration) {
 	this.getDay(dayOfWeek).addShift(new WorkingWeek.Shift(new Date(1970, 0, 1, hour, minute, second, millisecond), duration));
 }
 
+/**
+ * Remove a shift from the week.  The supplied arguments must match the start of
+ * the shift exactly.  The function does not attempt to find a shift that
+ * *contains* the specified time; it will only match shifts that *start* at the
+ * specified time.
+ * @param dayOfWeek A value indicating the day of the week (this can be an
+ * integer between 0 and 6, but using the WorkingWeek.DayOfWeek enum is
+ * recommended).
+ * @param hour The start hour of the shift.
+ * @param minute The start minute of the shift.
+ * @param second The start second of the shift.
+ * @param millisecond The start millisecond of the shift.
+ */
 WorkingWeek.Week.prototype.removeShift = function(dayOfWeek, hour, minute, second, millisecond) {
 	this.getDay(dayOfWeek).removeShift(new WorkingWeek.Shift(new Date(1970, 0, 1, hour, minute, second, millisecond)));
 }
 
+/**
+ * Check if the specified date is a working date (ie. it contains shifts).
+ * @param date The date to check.
+ * @return A boolean indicating whether or not the date is a working date.
+ */
 WorkingWeek.Week.prototype.isWorkingDate = function(date) {
 	var workingDay = this.getDay(date.getDay());
 	
@@ -362,10 +508,26 @@ WorkingWeek.Week.prototype.isWorkingDate = function(date) {
 	return workingDay.isWorkingTime(date);
 }
 
+/**
+ * Check if the specified day of the week is a working day (ie. it contains
+ * shifts).
+ * @param dayOfWeek A value indicating the day of the week (this can be an
+ * integer between 0 and 6, but using the WorkingWeek.DayOfWeek enum is
+ * recommended).
+ * @return A boolean indicating whether or not the day is a working day.
+ */
 WorkingWeek.Week.prototype.isWorkingDay = function(dayOfWeek) {
 	return this.getDay(dayOfWeek).isWorking();
 }
 
+/**
+ * Locates the first shift that occurs after the supplied date.  If the date
+ * falls within a shift, that shift is returned (but truncated, so that its
+ * start date matches the supplied date).
+ * @param date The date at which searching will begin.
+ * @return The first shift after to the supplied date.  If no shift is found,
+ * the function returns false.
+ */
 WorkingWeek.Week.prototype.getNextShift = function(date) {
 	if (!this.containsShifts()) return false;
 	
@@ -398,6 +560,14 @@ WorkingWeek.Week.prototype.getNextShift = function(date) {
 	return false;
 }
 
+/**
+ * Locates the first shift that occurs prior to the supplied date.  If the date
+ * falls within a shift, that shift is returned (but truncated, so that its end
+ * date matches the supplied date).
+ * @param date The date at which searching will begin.
+ * @return The first shift prior to the supplied date.  If no shift is found,
+ * the function returns false.
+ */
 WorkingWeek.Week.prototype.getPreviousShift = function(date) {
 	if (!this.containsShifts()) return false;
 	
@@ -497,6 +667,15 @@ WorkingWeek.Week.prototype.dateDiff = function(startDate, endDate) {
 	}
 }
 
+/**
+ * Gets the end date of a working period that begins at startDate and lasts for
+ * the specified duration.  Duration must be a TimeSpan object and must
+ * represent a positive period.  Externally, dateAdd() should really be used
+ * instead.
+ * @param startDate Date at which the period begins.
+ * @param duration The length of the period.
+ * @return The date at which the period will end, based on the working week.
+ */
 WorkingWeek.Week.prototype.dateAddPositive = function(startDate, duration) {
 	var endDate = startDate;
 	
@@ -532,6 +711,15 @@ WorkingWeek.Week.prototype.dateAddPositive = function(startDate, duration) {
 	return endDate;
 }
 
+/**
+ * Gets the end date of a working period that begins at startDate and lasts for
+ * the specified duration.  Duration must be a TimeSpan object and must
+ * represent a negative period.  Externally, dateAdd() should really be used
+ * instead.
+ * @param startDate Date at which the period begins.
+ * @param duration The length of the period.
+ * @return The date at which the period will end, based on the working week.
+ */
 WorkingWeek.Week.prototype.dateAddNegative = function(startDate, duration) {
 	var endDate = startDate;
 	
@@ -569,6 +757,14 @@ WorkingWeek.Week.prototype.dateAddNegative = function(startDate, duration) {
 	return endDate;
 }
 
+/**
+ * Gets the end date of a working period that begins at startDate and lasts for
+ * the specified duration.  Duration must be a TimeSpan object, but can
+ * represent either a positive or negative period.
+ * @param startDate Date at which the period begins.
+ * @param duration The length of the period.
+ * @return The date at which the period will end, based on the working week.
+ */
 WorkingWeek.Week.prototype.dateAdd = function(startDate, duration) {
 	if (duration.getTotalMilliseconds() > 0) {
 		return this.dateAddPositive(startDate, duration);
