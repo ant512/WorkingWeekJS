@@ -342,7 +342,7 @@ WorkingWeek.Day.prototype.removeShift = function(shift) {
 			
 			// Remove the shift's duration along with the shift itself
 			this.duration = this.duration.subtractTimeSpan(currentShift.getDuration());
-			this.shifts = this.shifts.splice(i, 1);
+			this.shifts.splice(i, 1);
 			break;
 		}
 	}
