@@ -270,7 +270,7 @@ WorkingWeek.Day.prototype.getDuration = function() {
  * Finds a shift that intersects the supplied date.
  * @param date The date to search for.
  * @return  A shift object that contains the supplied date.  If no match is
- * found, the function returns false.
+ * found, the function returns null.
  */
 WorkingWeek.Day.prototype.findShift = function(date) {
 	
@@ -281,7 +281,7 @@ WorkingWeek.Day.prototype.findShift = function(date) {
 		if ((searchTime >= this.shifts[i].getStartTime()) && (searchTime < this.shifts[i].getEndTime())) return this.shifts[i];
 	}
 	
-	return false;
+	return null;
 }
 
 /**
@@ -290,7 +290,7 @@ WorkingWeek.Day.prototype.findShift = function(date) {
  * @return A boolean indicating whether or not the date is a working time.
  */
 WorkingWeek.Day.prototype.isWorkingTime = function(date) {
-	return (this.findShift(date) != false);
+	return (this.findShift(date) != null);
 }
 
 /**
@@ -329,7 +329,7 @@ WorkingWeek.Day.prototype.addShift = function(shift) {
  * remove.
  */
 WorkingWeek.Day.prototype.removeShift = function(shift) {
-	var startTime = false;
+	var startTime = null;
 	
 	for (var i = 0; i < this.shifts.length; ++i) {
 		var currentShift = this.shifts[i];
@@ -352,7 +352,7 @@ WorkingWeek.Day.prototype.removeShift = function(shift) {
  * Get the next shift after the supplied date.  If the next appropriate shift
  * contains the supplied date, that shift is returned.
  * @param date Date of the shift to find.
- * @return The appropriate shift, or false if no shift is found.
+ * @return The appropriate shift, or null if no shift is found.
  */
 WorkingWeek.Day.prototype.getNextShift = function(date) {
 
@@ -380,14 +380,14 @@ WorkingWeek.Day.prototype.getNextShift = function(date) {
 		}
 	}
 	
-	return false;
+	return null;
 }
 
 /**
  * Get the shift prior to the supplied date.  If the next appropriate shift
  * contains the supplied date, that shift is returned.
  * @param date Date of the shift to find.
- * @return The appropriate shift, or false if no shift is found.
+ * @return The appropriate shift, or null if no shift is found.
  */
 WorkingWeek.Day.prototype.getPreviousShift = function(date) {
 
@@ -416,7 +416,7 @@ WorkingWeek.Day.prototype.getPreviousShift = function(date) {
 		}
 	}
 	
-	return false;
+	return null;
 }
 
 
@@ -526,10 +526,10 @@ WorkingWeek.Week.prototype.isWorkingDay = function(dayOfWeek) {
  * start date matches the supplied date).
  * @param date The date at which searching will begin.
  * @return The first shift after to the supplied date.  If no shift is found,
- * the function returns false.
+ * the function returns null.
  */
 WorkingWeek.Week.prototype.getNextShift = function(date) {
-	if (!this.containsShifts()) return false;
+	if (!this.containsShifts()) return null;
 	
 	for (var i = 0; i < 7; ++i) {
 		var day = this.days[date.getDay()];
@@ -538,7 +538,7 @@ WorkingWeek.Week.prototype.getNextShift = function(date) {
 		
 			var shift = day.getNextShift(date);
 		
-			if (shift != false) {
+			if (shift != null) {
 				var shiftTime = shift.getStartTime();
 				var adjustedTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), shiftTime.getHours(), shiftTime.getMinutes(), shiftTime.getSeconds(), shiftTime.getMilliseconds());
 			
@@ -557,7 +557,7 @@ WorkingWeek.Week.prototype.getNextShift = function(date) {
 	
 	// No shifts match - this should never happen if the week passes the
 	// containsShifts() check.
-	return false;
+	return null;
 }
 
 /**
@@ -566,10 +566,10 @@ WorkingWeek.Week.prototype.getNextShift = function(date) {
  * date matches the supplied date).
  * @param date The date at which searching will begin.
  * @return The first shift prior to the supplied date.  If no shift is found,
- * the function returns false.
+ * the function returns null.
  */
 WorkingWeek.Week.prototype.getPreviousShift = function(date) {
-	if (!this.containsShifts()) return false;
+	if (!this.containsShifts()) return null;
 	
 	for (var i = 0; i < 7; ++i) {
 		var day = this.days[date.getDay()];
@@ -577,7 +577,7 @@ WorkingWeek.Week.prototype.getPreviousShift = function(date) {
 		if (day.isWorking()) {
 			var shift = day.getPreviousShift(date);
 			
-			if (shift != false) {
+			if (shift != null) {
 				var shiftTime = shift.getStartTime();
 				var adjustedTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), shiftTime.getHours(), shiftTime.getMinutes(), shiftTime.getSeconds(), shiftTime.getMilliseconds());
 			
@@ -597,7 +597,7 @@ WorkingWeek.Week.prototype.getPreviousShift = function(date) {
 	
 	// No shifts match - this should never happen if the week passes the
 	// containsShifts() check.
-	return false;
+	return null;
 }
 
 /**
@@ -611,7 +611,7 @@ WorkingWeek.Week.prototype.getPreviousShift = function(date) {
  * object.
  */
 WorkingWeek.Week.prototype.dateDiff = function(startDate, endDate) {
-	var invertedDates = false;
+	var invertedDates = null;
 	
 	// Invert dates if necessary so that startDate always precedes endDate
 	if (startDate > endDate) {
